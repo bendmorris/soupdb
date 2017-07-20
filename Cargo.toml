@@ -1,0 +1,13 @@
+[package]
+name = "soupdb"
+version = "0.1.0"
+authors = ["Ben Morris <ben@bendmorris.com>"]
+
+[dependencies]
+nom = "^3.1"
+byteorder = "1.1.0"
+glob = "*"
+lru-cache = "0.1.1"
+
+[profile.release]
+lto = true

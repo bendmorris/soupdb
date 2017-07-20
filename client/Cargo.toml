@@ -1,0 +1,11 @@
+[package]
+name = "soupdb-client"
+version = "0.1.0"
+authors = ["Ben Morris <ben@bendmorris.com>"]
+
+[dependencies]
+argparse = "*"
+rustyline = "1.0.0"
+
+[dependencies.soupdb]
+path = ".."

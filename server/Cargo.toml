@@ -1,0 +1,11 @@
+[package]
+name = "soupdb-server"
+version = "0.1.0"
+authors = ["Ben Morris <ben@bendmorris.com>"]
+
+[dependencies]
+argparse = "*"
+mio = "0.6"
+
+[dependencies.soupdb]
+path = ".."
