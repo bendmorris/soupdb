@@ -1,5 +1,5 @@
-use soupdb::command::expr::{Expr, UnaryOperator, BinaryOperator};
-use soupdb::value::ValueType;
+use soupdb::ast::{Expr, UnaryOperator, BinaryOperator};
+use soupdb::ast::value_type::ValueType;
 
 /// To parse infix operations, tokenize everything at the same level of parens
 /// then apply shunting-yard to transform into an Expr.

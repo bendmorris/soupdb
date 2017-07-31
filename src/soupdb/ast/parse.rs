@@ -1,15 +1,15 @@
 use nom::{IResult, digit};
-use soupdb::command::Command;
-use soupdb::command::binop::{ExprToken, shunting_yard};
-use soupdb::command::expr::{Expr, BinaryOperator, UnaryOperator};
-use soupdb::error::{Error, Result};
+use soupdb::{Error, Result};
+use soupdb::ast::{Expr, BinaryOperator, UnaryOperator, Identifier};
+use soupdb::ast::command::Command;
+use soupdb::ast::binop::{ExprToken, shunting_yard};
+use soupdb::ast::tuple::{TupleDef, TupleEntry};
+use soupdb::ast::value_type::ValueType;
 use soupdb::model::document::Document;
 use soupdb::model::geohash::GeoHash;
 use soupdb::model::graph::Graph;
 use soupdb::model::table::Table;
 use soupdb::model::timeseries::TimeSeries;
-use soupdb::tuple::{TupleDef, TupleEntry};
-use soupdb::value::ValueType;
 
 // basic subparsers
 
@@ -237,14 +237,14 @@ named!(unop_expr_parser<&str, Expr>, ws!(do_parse!(
 
 named!(identifier_parser<&str, Expr>, do_parse!(
     id: identifier >>
-    (Expr::Identifier {name: id, qualifier: None})
+    (Expr::Id(Identifier {name: id, qualifier: None}))
 ));
 
 named!(qualified_identifier_parser<&str, Expr>, do_parse!(
     part1: identifier >>
     char!('.') >>
     part2: identifier >>
-    (Expr::Identifier {name: part2, qualifier: Some(part1)})
+    (Expr::Id(Identifier {name: part2, qualifier: Some(part1)}))
 ));
 
 named!(term_parser<&str, Expr>, alt_complete!(
@@ -438,17 +438,17 @@ fn test_parse_expr() {
 
     assert_eq!(
         parser_wrapper(&term_parser, "def"),
-        Ok(Expr::Identifier {name: "def".to_string(), qualifier: None})
+        Ok(Expr::Id(Identifier {name: "def".to_string(), qualifier: None}))
     );
 
     assert_eq!(
         parse_expr("def"),
-        Ok(Expr::Identifier {name: "def".to_string(), qualifier: None})
+        Ok(Expr::Id(Identifier {name: "def".to_string(), qualifier: None}))
     );
 
     assert_eq!(
         parse_expr("abc.def"),
-        Ok(Expr::Identifier {name: "def".to_string(), qualifier: Some("abc".to_string())})
+        Ok(Expr::Id(Identifier {name: "def".to_string(), qualifier: Some("abc".to_string())}))
     );
 
     assert_eq!(
@@ -456,7 +456,7 @@ fn test_parse_expr() {
         Ok(Expr::BinOp {
             left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}),
             op: BinaryOperator::OpAdd,
-            right: Box::new(Expr::Identifier {name: "def".to_string(), qualifier: None})
+            right: Box::new(Expr::Id(Identifier {name: "def".to_string(), qualifier: None}))
         })
     );
 
@@ -465,7 +465,7 @@ fn test_parse_expr() {
         Ok(Expr::BinOp {
             left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}),
             op: BinaryOperator::OpAdd,
-            right: Box::new(Expr::Identifier {name: "def".to_string(), qualifier: Some("abc".to_string())})
+            right: Box::new(Expr::Id(Identifier {name: "def".to_string(), qualifier: Some("abc".to_string())}))
         })
     );
 }

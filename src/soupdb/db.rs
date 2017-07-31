@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 use glob::glob;
-use soupdb::command::Command;
+use soupdb::{Error, Result};
+use soupdb::ast::command::Command;
 use soupdb::config::Config;
-use soupdb::error::{Error, Result};
 use soupdb::model::Model;
 
 struct Database {

@@ -6,8 +6,10 @@ pub mod timeseries;
 
 use std::fmt::Debug;
 use std::io::Write;
-use soupdb::error::{Error, Result};
-use soupdb::tuple::TupleDef;
+use soupdb::ast::command::Command;
+use soupdb::ast::parse::parse_command;
+use soupdb::ast::tuple::TupleDef;
+use soupdb::{Error, Result};
 
 pub trait ModelType: Debug {
     fn rowid_schema(&self) -> Option<TupleDef> {
@@ -28,9 +30,6 @@ impl Model {
     }
 
     pub fn from_ddl(ddl: &str) -> Result<Model> {
-        use soupdb::command::Command;
-        use soupdb::command::parse::parse_command;
-
         match parse_command(ddl) {
             Ok(Command::CreateModel {name: n, schema: s}) => Ok(Model {name: n, schema: s}),
             Ok(c) => Err(Error::ParseError(format!("invalid DDL: {:?}", c))),

@@ -1,6 +1,6 @@
+use soupdb::ast::tuple::{TupleDef, TupleEntry};
+use soupdb::ast::value_type::ValueType;
 use soupdb::model::ModelType;
-use soupdb::tuple::{TupleDef, TupleEntry};
-use soupdb::value::ValueType;
 
 #[derive(Debug)]
 pub struct TimeSeries {
@@ -21,9 +21,9 @@ impl ModelType for TimeSeries {
 
 #[test]
 fn test_timeseries_ddl() {
+    use soupdb::ast::tuple::{TupleEntry, TupleDef};
+    use soupdb::ast::value_type::ValueType;
     use soupdb::model::Model;
-    use soupdb::tuple::{TupleEntry, TupleDef};
-    use soupdb::value::ValueType;
 
     let test_ddl = "create timeseries test_ts (col_1 int, col_2 nullable vector(3) float);".to_string();
 

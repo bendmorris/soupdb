@@ -1,7 +1,7 @@
 use std::collections::{HashMap, LinkedList};
 use std::io::Read;
 use lru_cache::LruCache;
-use soupdb::error::{Result, Error};
+use soupdb::{Result, Error};
 use soupdb::io::page::{PAGE_SIZE, PageId};
 
 /// An LRU cache which maps page IDs to segments of working memory.

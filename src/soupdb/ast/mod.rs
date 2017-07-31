@@ -1,11 +1,23 @@
+pub mod binop;
+pub mod command;
+pub mod parse;
+pub mod tuple;
+pub mod value_type;
+
 use std::result::Result;
 use std::str::FromStr;
-use soupdb::error::Error;
-use soupdb::value::ValueType;
+use soupdb::Error;
+use soupdb::ast::value_type::ValueType;
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct Identifier {
+    pub name: String,
+    pub qualifier: Option<String>
+}
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Expr {
-    Identifier {name: String, qualifier: Option<String>},
+    Id(Identifier),
     Literal {value_type: ValueType, value: String},
     FunctionCall {name: String, args: Vec<Expr>},
     UnOp {expr: Box<Expr>, op: UnaryOperator},

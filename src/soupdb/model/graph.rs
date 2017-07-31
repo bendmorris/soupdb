@@ -1,5 +1,5 @@
+use soupdb::ast::tuple::TupleDef;
 use soupdb::model::ModelType;
-use soupdb::tuple::TupleDef;
 
 #[derive(Debug)]
 pub struct Graph {
@@ -15,9 +15,9 @@ impl ModelType for Graph {
 
 #[test]
 fn test_graph_ddl() {
+    use soupdb::ast::tuple::{TupleEntry, TupleDef};
+    use soupdb::ast::value_type::ValueType;
     use soupdb::model::Model;
-    use soupdb::tuple::{TupleEntry, TupleDef};
-    use soupdb::value::ValueType;
 
     let test_ddl = "create graph test_graph (col_1 int, col_2 nullable vector(3) float) (edge_length float);".to_string();
 
