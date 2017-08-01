@@ -3,7 +3,6 @@ pub mod config;
 pub mod db;
 pub mod io;
 pub mod model;
-pub mod value;
 
 use std::result;
 

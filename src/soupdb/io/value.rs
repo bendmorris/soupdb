@@ -49,15 +49,20 @@ impl Debug for Value {
     }
 }
 
-#[test]
-fn test_value_from_bytes() {
-    assert_eq!(Some(Value {bool_value: true}), Value::from_bytes(&[1], &ValueType::Bool));
-    assert_eq!(Some(Value {bool_value: false}), Value::from_bytes(&[0], &ValueType::Bool));
-    assert_eq!(Some(Value {int_value: 0}), Value::from_bytes(&[0, 0, 0, 0, 0, 0, 0, 0], &ValueType::Int));
-    assert_eq!(Some(Value {int_value: 1}), Value::from_bytes(&[1, 0, 0, 0, 0, 0, 0, 0], &ValueType::Int));
-    assert_eq!(Some(Value {int_value: -1}), Value::from_bytes(&[0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff], &ValueType::Int));
-    assert_eq!(Some(Value {uint_value: 0}), Value::from_bytes(&[0, 0, 0, 0, 0, 0, 0, 0], &ValueType::Uint));
-    assert_eq!(Some(Value {uint_value: 1}), Value::from_bytes(&[1, 0, 0, 0, 0, 0, 0, 0], &ValueType::Uint));
-    assert_eq!(Some(Value {uint_value: 18446744073709551615}), Value::from_bytes(&[0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff], &ValueType::Uint));
-    assert_eq!(Some(Value {float_value: 0.12345}), Value::from_bytes(&[0x7c, 0xf2, 0xb0, 0x50, 0x6b, 0x9a, 0xbf, 0x3f], &ValueType::Float));
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_value_from_bytes() {
+        assert_eq!(Some(Value {bool_value: true}), Value::from_bytes(&[1], &ValueType::Bool));
+        assert_eq!(Some(Value {bool_value: false}), Value::from_bytes(&[0], &ValueType::Bool));
+        assert_eq!(Some(Value {int_value: 0}), Value::from_bytes(&[0, 0, 0, 0, 0, 0, 0, 0], &ValueType::Int));
+        assert_eq!(Some(Value {int_value: 1}), Value::from_bytes(&[1, 0, 0, 0, 0, 0, 0, 0], &ValueType::Int));
+        assert_eq!(Some(Value {int_value: -1}), Value::from_bytes(&[0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff], &ValueType::Int));
+        assert_eq!(Some(Value {uint_value: 0}), Value::from_bytes(&[0, 0, 0, 0, 0, 0, 0, 0], &ValueType::Uint));
+        assert_eq!(Some(Value {uint_value: 1}), Value::from_bytes(&[1, 0, 0, 0, 0, 0, 0, 0], &ValueType::Uint));
+        assert_eq!(Some(Value {uint_value: 18446744073709551615}), Value::from_bytes(&[0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff], &ValueType::Uint));
+        assert_eq!(Some(Value {float_value: 0.12345}), Value::from_bytes(&[0x7c, 0xf2, 0xb0, 0x50, 0x6b, 0x9a, 0xbf, 0x3f], &ValueType::Float));
+    }
 }

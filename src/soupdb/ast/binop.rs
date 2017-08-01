@@ -69,135 +69,140 @@ pub fn shunting_yard(tokens: Vec<ExprToken>) -> Expr {
     expr_stack.pop().unwrap()
 }
 
-#[test]
-fn test_shunting_yard() {
-    use self::ExprToken::{OpenParen, CloseParen, UnOp, BinOp, Term};
-    let v1 = Expr::Literal {value_type: ValueType::Int, value: "1".to_string()};
-    let v2 = Expr::Literal {value_type: ValueType::Int, value: "2".to_string()};
-    let v3 = Expr::Literal {value_type: ValueType::Float, value: "2.5".to_string()};
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::ExprToken::*;
 
-    // 1
-    assert_eq!(
-        shunting_yard(vec![Term(v1.clone())]),
-        v1.clone()
-    );
+    #[test]
+    fn test_shunting_yard() {
+        let v1 = Expr::Literal {value_type: ValueType::Int, value: "1".to_string()};
+        let v2 = Expr::Literal {value_type: ValueType::Int, value: "2".to_string()};
+        let v3 = Expr::Literal {value_type: ValueType::Float, value: "2.5".to_string()};
 
-    // (2)
-    assert_eq!(
-        shunting_yard(vec![OpenParen, Term(v2.clone()), CloseParen]),
-        v2.clone()
-    );
+        // 1
+        assert_eq!(
+            shunting_yard(vec![Term(v1.clone())]),
+            v1.clone()
+        );
 
-    // (1) + 2
-    assert_eq!(
-        shunting_yard(vec![OpenParen, Term(v1.clone()), CloseParen, BinOp(BinaryOperator::OpAdd), Term(v2.clone())]),
-        Expr::BinOp {
-            left: Box::new(v1.clone()),
-            op: BinaryOperator::OpAdd,
-            right: Box::new(v2.clone()),
-        }
-    );
+        // (2)
+        assert_eq!(
+            shunting_yard(vec![OpenParen, Term(v2.clone()), CloseParen]),
+            v2.clone()
+        );
 
-    // 1 + (2)
-    assert_eq!(
-        shunting_yard(vec![Term(v1.clone()), OpenParen, BinOp(BinaryOperator::OpAdd), Term(v2.clone()), CloseParen]),
-        Expr::BinOp {
-            left: Box::new(v1.clone()),
-            op: BinaryOperator::OpAdd,
-            right: Box::new(v2.clone()),
-        }
-    );
-
-    // 1 + 2
-    assert_eq!(
-        shunting_yard(vec![Term(v1.clone()), BinOp(BinaryOperator::OpAdd), Term(v2.clone())]),
-        Expr::BinOp {
-            left: Box::new(v1.clone()),
-            op: BinaryOperator::OpAdd,
-            right: Box::new(v2.clone()),
-        }
-    );
-
-    // (1 + 2)
-    assert_eq!(
-        shunting_yard(vec![OpenParen, Term(v1.clone()), BinOp(BinaryOperator::OpAdd), Term(v2.clone()), CloseParen]),
-        Expr::BinOp {
-            left: Box::new(v1.clone()),
-            op: BinaryOperator::OpAdd,
-            right: Box::new(v2.clone()),
-        }
-    );
-
-    // (2 - 1)
-    assert_eq!(
-        shunting_yard(vec![OpenParen, Term(v2.clone()), BinOp(BinaryOperator::OpSub), Term(v1.clone()), CloseParen]),
-        Expr::BinOp {
-            left: Box::new(v2.clone()),
-            op: BinaryOperator::OpSub,
-            right: Box::new(v1.clone()),
-        }
-    );
-
-    // 1 + 2 * 2.5
-    assert_eq!(
-        shunting_yard(vec![Term(v1.clone()), BinOp(BinaryOperator::OpAdd), Term(v2.clone()), BinOp(BinaryOperator::OpMul), Term(v3.clone())]),
-        Expr::BinOp {
-            left: Box::new(v1.clone()),
-            op: BinaryOperator::OpAdd,
-            right: Box::new(Expr::BinOp {
-                left: Box::new(v2.clone()),
-                op: BinaryOperator::OpMul,
-                right: Box::new(v3.clone()),
-            }),
-        }
-    );
-
-    // (1 + 2) * 2.5
-    assert_eq!(
-        shunting_yard(vec![OpenParen, Term(v1.clone()), BinOp(BinaryOperator::OpAdd), Term(v2.clone()), CloseParen, BinOp(BinaryOperator::OpMul), Term(v3.clone())]),
-        Expr::BinOp {
-            left: Box::new(Expr::BinOp {
+        // (1) + 2
+        assert_eq!(
+            shunting_yard(vec![OpenParen, Term(v1.clone()), CloseParen, BinOp(BinaryOperator::OpAdd), Term(v2.clone())]),
+            Expr::BinOp {
                 left: Box::new(v1.clone()),
                 op: BinaryOperator::OpAdd,
                 right: Box::new(v2.clone()),
-            }),
-            op: BinaryOperator::OpMul,
-            right: Box::new(v3.clone()),
-        }
-    );
+            }
+        );
 
-    // NOT 2.5
-    assert_eq!(
-        shunting_yard(vec![UnOp(UnaryOperator::OpNot), Term(v3.clone())]),
-        Expr::UnOp {
-            expr: Box::new(v3.clone()),
-            op: UnaryOperator::OpNot,
-        }
-    );
+        // 1 + (2)
+        assert_eq!(
+            shunting_yard(vec![Term(v1.clone()), OpenParen, BinOp(BinaryOperator::OpAdd), Term(v2.clone()), CloseParen]),
+            Expr::BinOp {
+                left: Box::new(v1.clone()),
+                op: BinaryOperator::OpAdd,
+                right: Box::new(v2.clone()),
+            }
+        );
 
-    // 1 AND NOT 2
-    assert_eq!(
-        shunting_yard(vec![Term(v1.clone()), BinOp(BinaryOperator::OpAnd), UnOp(UnaryOperator::OpNot), Term(v2.clone())]),
-        Expr::BinOp {
-            left: Box::new(v1.clone()),
-            op: BinaryOperator::OpAnd,
-            right: Box::new(Expr::UnOp {
-                expr: Box::new(v2.clone()),
+        // 1 + 2
+        assert_eq!(
+            shunting_yard(vec![Term(v1.clone()), BinOp(BinaryOperator::OpAdd), Term(v2.clone())]),
+            Expr::BinOp {
+                left: Box::new(v1.clone()),
+                op: BinaryOperator::OpAdd,
+                right: Box::new(v2.clone()),
+            }
+        );
+
+        // (1 + 2)
+        assert_eq!(
+            shunting_yard(vec![OpenParen, Term(v1.clone()), BinOp(BinaryOperator::OpAdd), Term(v2.clone()), CloseParen]),
+            Expr::BinOp {
+                left: Box::new(v1.clone()),
+                op: BinaryOperator::OpAdd,
+                right: Box::new(v2.clone()),
+            }
+        );
+
+        // (2 - 1)
+        assert_eq!(
+            shunting_yard(vec![OpenParen, Term(v2.clone()), BinOp(BinaryOperator::OpSub), Term(v1.clone()), CloseParen]),
+            Expr::BinOp {
+                left: Box::new(v2.clone()),
+                op: BinaryOperator::OpSub,
+                right: Box::new(v1.clone()),
+            }
+        );
+
+        // 1 + 2 * 2.5
+        assert_eq!(
+            shunting_yard(vec![Term(v1.clone()), BinOp(BinaryOperator::OpAdd), Term(v2.clone()), BinOp(BinaryOperator::OpMul), Term(v3.clone())]),
+            Expr::BinOp {
+                left: Box::new(v1.clone()),
+                op: BinaryOperator::OpAdd,
+                right: Box::new(Expr::BinOp {
+                    left: Box::new(v2.clone()),
+                    op: BinaryOperator::OpMul,
+                    right: Box::new(v3.clone()),
+                }),
+            }
+        );
+
+        // (1 + 2) * 2.5
+        assert_eq!(
+            shunting_yard(vec![OpenParen, Term(v1.clone()), BinOp(BinaryOperator::OpAdd), Term(v2.clone()), CloseParen, BinOp(BinaryOperator::OpMul), Term(v3.clone())]),
+            Expr::BinOp {
+                left: Box::new(Expr::BinOp {
+                    left: Box::new(v1.clone()),
+                    op: BinaryOperator::OpAdd,
+                    right: Box::new(v2.clone()),
+                }),
+                op: BinaryOperator::OpMul,
+                right: Box::new(v3.clone()),
+            }
+        );
+
+        // NOT 2.5
+        assert_eq!(
+            shunting_yard(vec![UnOp(UnaryOperator::OpNot), Term(v3.clone())]),
+            Expr::UnOp {
+                expr: Box::new(v3.clone()),
                 op: UnaryOperator::OpNot,
-            }),
-        }
-    );
+            }
+        );
 
-    // NOT 1 AND 2
-    assert_eq!(
-        shunting_yard(vec![UnOp(UnaryOperator::OpNot), Term(v1.clone()), BinOp(BinaryOperator::OpAnd), Term(v2.clone())]),
-        Expr::BinOp {
-            left: Box::new(Expr::UnOp {
-                expr: Box::new(v1.clone()),
-                op: UnaryOperator::OpNot,
-            }),
-            op: BinaryOperator::OpAnd,
-            right: Box::new(v2.clone()),
-        }
-    );
+        // 1 AND NOT 2
+        assert_eq!(
+            shunting_yard(vec![Term(v1.clone()), BinOp(BinaryOperator::OpAnd), UnOp(UnaryOperator::OpNot), Term(v2.clone())]),
+            Expr::BinOp {
+                left: Box::new(v1.clone()),
+                op: BinaryOperator::OpAnd,
+                right: Box::new(Expr::UnOp {
+                    expr: Box::new(v2.clone()),
+                    op: UnaryOperator::OpNot,
+                }),
+            }
+        );
+
+        // NOT 1 AND 2
+        assert_eq!(
+            shunting_yard(vec![UnOp(UnaryOperator::OpNot), Term(v1.clone()), BinOp(BinaryOperator::OpAnd), Term(v2.clone())]),
+            Expr::BinOp {
+                left: Box::new(Expr::UnOp {
+                    expr: Box::new(v1.clone()),
+                    op: UnaryOperator::OpNot,
+                }),
+                op: BinaryOperator::OpAnd,
+                right: Box::new(v2.clone()),
+            }
+        );
+    }
 }

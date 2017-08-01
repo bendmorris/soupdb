@@ -51,30 +51,35 @@ impl ValueType {
     }
 }
 
-#[test]
-fn test_value_size() {
-    use self::ValueType::{AutoId, Bool, Uint, Int, Str, Nullable, Vector};
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    assert_eq!(8, AutoId.size_of());
-    assert_eq!(1, Bool.size_of());
-    assert_eq!(8, Uint.size_of());
-    assert_eq!(8, Int.size_of());
-    assert_eq!(16, Str(0).size_of());
-    assert_eq!(27, Str(27).size_of());
-    assert_eq!(28, Nullable(Box::new(Str(27))).size_of());
-    assert_eq!(112, Vector(4, Box::new(Nullable(Box::new(Str(27))))).size_of());
-}
+    #[test]
+    fn test_value_size() {
+        use self::ValueType::{AutoId, Bool, Uint, Int, Str, Nullable, Vector};
 
-#[test]
-fn test_ddl() {
-    assert_eq!("bool", ValueType::Bool.to_ddl());
-    assert_eq!("int", ValueType::Int.to_ddl());
-    assert_eq!("unsigned int", ValueType::Uint.to_ddl());
-    assert_eq!("float", ValueType::Float.to_ddl());
-    assert_eq!("str", ValueType::Str(0).to_ddl());
-    assert_eq!("str(12)", ValueType::Str(12).to_ddl());
-    assert_eq!("nullable bool", (ValueType::Nullable(Box::new(ValueType::Bool))).to_ddl());
-    assert_eq!("nullable int", (ValueType::Nullable(Box::new(ValueType::Int))).to_ddl());
-    assert_eq!("nullable str(189)", (ValueType::Nullable(Box::new(ValueType::Str(189)))).to_ddl());
-    assert_eq!("vector(3) nullable bool", (ValueType::Vector(3, Box::new(ValueType::Nullable(Box::new(ValueType::Bool))))).to_ddl());
+        assert_eq!(8, AutoId.size_of());
+        assert_eq!(1, Bool.size_of());
+        assert_eq!(8, Uint.size_of());
+        assert_eq!(8, Int.size_of());
+        assert_eq!(16, Str(0).size_of());
+        assert_eq!(27, Str(27).size_of());
+        assert_eq!(28, Nullable(Box::new(Str(27))).size_of());
+        assert_eq!(112, Vector(4, Box::new(Nullable(Box::new(Str(27))))).size_of());
+    }
+
+    #[test]
+    fn test_ddl() {
+        assert_eq!("bool", ValueType::Bool.to_ddl());
+        assert_eq!("int", ValueType::Int.to_ddl());
+        assert_eq!("unsigned int", ValueType::Uint.to_ddl());
+        assert_eq!("float", ValueType::Float.to_ddl());
+        assert_eq!("str", ValueType::Str(0).to_ddl());
+        assert_eq!("str(12)", ValueType::Str(12).to_ddl());
+        assert_eq!("nullable bool", (ValueType::Nullable(Box::new(ValueType::Bool))).to_ddl());
+        assert_eq!("nullable int", (ValueType::Nullable(Box::new(ValueType::Int))).to_ddl());
+        assert_eq!("nullable str(189)", (ValueType::Nullable(Box::new(ValueType::Str(189)))).to_ddl());
+        assert_eq!("vector(3) nullable bool", (ValueType::Vector(3, Box::new(ValueType::Nullable(Box::new(ValueType::Bool))))).to_ddl());
+    }
 }

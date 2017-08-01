@@ -96,18 +96,23 @@ impl FromStr for UnaryOperator {
     }
 }
 
-#[test]
-fn test_binop() {
-    use self::BinaryOperator::*;
-    assert_eq!("+".parse::<BinaryOperator>().unwrap(), OpAdd);
-    assert_eq!("!=".parse::<BinaryOperator>().unwrap(), OpNeq);
-    assert_eq!("and".parse::<BinaryOperator>().unwrap(), OpAnd);
-    assert!(OpMul.precedence() > OpAdd.precedence());
-    assert!(OpMul.precedence() == OpDiv.precedence());
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::BinaryOperator::*;
+    use super::UnaryOperator::*;
 
-#[test]
-fn test_unop() {
-    use self::UnaryOperator::*;
-    assert_eq!("not".parse::<UnaryOperator>().unwrap(), OpNot);
+    #[test]
+    fn test_binop() {
+        assert_eq!("+".parse::<BinaryOperator>().unwrap(), OpAdd);
+        assert_eq!("!=".parse::<BinaryOperator>().unwrap(), OpNeq);
+        assert_eq!("and".parse::<BinaryOperator>().unwrap(), OpAnd);
+        assert!(OpMul.precedence() > OpAdd.precedence());
+        assert!(OpMul.precedence() == OpDiv.precedence());
+    }
+
+    #[test]
+    fn test_unop() {
+        assert_eq!("not".parse::<UnaryOperator>().unwrap(), OpNot);
+    }
 }

@@ -350,122 +350,127 @@ pub fn parse_expr(input: &str) -> Result<Expr> {
     parser_wrapper(&expr_parser, input)
 }
 
-#[test]
-fn test_parse_create() {
-    assert_eq!(
-        parse_command("create TABLE my_table (col_1 int, col2 str, col3 nullable bool, d nullable str(10), column_5 vector(3) unsigned int);"),
-        Ok(Command::CreateModel {name: "my_table".to_string(), schema: Box::new(Table {schema: TupleDef(vec![
-            TupleEntry {name: "col_1".to_string(), value: ValueType::Int},
-            TupleEntry {name: "col2".to_string(), value: ValueType::Str(0)},
-            TupleEntry {name: "col3".to_string(), value: ValueType::Nullable(Box::new(ValueType::Bool))},
-            TupleEntry {name: "d".to_string(), value: ValueType::Nullable(Box::new(ValueType::Str(10)))},
-            TupleEntry {name: "column_5".to_string(), value: ValueType::Vector(3, Box::new(ValueType::Uint))},
-        ])})})
-    );
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    assert_eq!(
-        parse_command("CREATE DOCUMENT doc ;"),
-        Ok(Command::CreateModel {name: "doc".to_string(), schema: Box::new(Document {})})
-    );
-}
+    #[test]
+    fn test_parse_create() {
+        assert_eq!(
+            parse_command("create TABLE my_table (col_1 int, col2 str, col3 nullable bool, d nullable str(10), column_5 vector(3) unsigned int);"),
+            Ok(Command::CreateModel {name: "my_table".to_string(), schema: Box::new(Table {schema: TupleDef(vec![
+                TupleEntry {name: "col_1".to_string(), value: ValueType::Int},
+                TupleEntry {name: "col2".to_string(), value: ValueType::Str(0)},
+                TupleEntry {name: "col3".to_string(), value: ValueType::Nullable(Box::new(ValueType::Bool))},
+                TupleEntry {name: "d".to_string(), value: ValueType::Nullable(Box::new(ValueType::Str(10)))},
+                TupleEntry {name: "column_5".to_string(), value: ValueType::Vector(3, Box::new(ValueType::Uint))},
+            ])})})
+        );
 
-#[test]
-fn test_parse_expr() {
-    assert_eq!(
-        parse_expr("FALSE"),
-        Ok(Expr::Literal {value_type: ValueType::Bool, value: "false".to_string()})
-    );
+        assert_eq!(
+            parse_command("CREATE DOCUMENT doc ;"),
+            Ok(Command::CreateModel {name: "doc".to_string(), schema: Box::new(Document {})})
+        );
+    }
 
-    assert_eq!(
-        parse_expr("1 + 2"),
-        Ok(Expr::BinOp {
-            left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}),
-            op: BinaryOperator::OpAdd,
-            right: Box::new(Expr::Literal {value_type: ValueType::Int, value: "2".to_string()}),
-        })
-    );
+    #[test]
+    fn test_parse_expr() {
+        assert_eq!(
+            parse_expr("FALSE"),
+            Ok(Expr::Literal {value_type: ValueType::Bool, value: "false".to_string()})
+        );
 
-    assert_eq!(
-        parse_expr("1 + 2 * 3"),
-        Ok(Expr::BinOp {
-            left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}),
-            op: BinaryOperator::OpAdd,
-            right: Box::new(
-                Expr::BinOp {
-                    left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "2".to_string()}),
-                    op: BinaryOperator::OpMul,
-                    right: Box::new(Expr::Literal {value_type: ValueType::Int, value: "3".to_string()}),
-                }
-            ),
-        })
-    );
+        assert_eq!(
+            parse_expr("1 + 2"),
+            Ok(Expr::BinOp {
+                left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}),
+                op: BinaryOperator::OpAdd,
+                right: Box::new(Expr::Literal {value_type: ValueType::Int, value: "2".to_string()}),
+            })
+        );
 
-    assert_eq!(
-        parse_expr("1 + 2 * 3 - (4 + 5) / 6-7.1"),
-        Ok(Expr::BinOp {
-            left: Box::new(Expr::BinOp {
+        assert_eq!(
+            parse_expr("1 + 2 * 3"),
+            Ok(Expr::BinOp {
+                left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}),
+                op: BinaryOperator::OpAdd,
+                right: Box::new(
+                    Expr::BinOp {
+                        left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "2".to_string()}),
+                        op: BinaryOperator::OpMul,
+                        right: Box::new(Expr::Literal {value_type: ValueType::Int, value: "3".to_string()}),
+                    }
+                ),
+            })
+        );
+
+        assert_eq!(
+            parse_expr("1 + 2 * 3 - (4 + 5) / 6-7.1"),
+            Ok(Expr::BinOp {
                 left: Box::new(Expr::BinOp {
-                    left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}),
-                    op: BinaryOperator::OpAdd,
-                    right: Box::new(
-                        Expr::BinOp {
-                            left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "2".to_string()}),
-                            op: BinaryOperator::OpMul,
-                            right: Box::new(Expr::Literal {value_type: ValueType::Int, value: "3".to_string()}),
-                        }
-                    ),
+                    left: Box::new(Expr::BinOp {
+                        left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}),
+                        op: BinaryOperator::OpAdd,
+                        right: Box::new(
+                            Expr::BinOp {
+                                left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "2".to_string()}),
+                                op: BinaryOperator::OpMul,
+                                right: Box::new(Expr::Literal {value_type: ValueType::Int, value: "3".to_string()}),
+                            }
+                        ),
+                    }),
+                    op: BinaryOperator::OpSub,
+                    right: Box::new(Expr::BinOp {
+                        left: Box::new(Expr::BinOp {
+                            left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "4".to_string()}),
+                            op: BinaryOperator::OpAdd,
+                            right: Box::new(Expr::Literal {value_type: ValueType::Int, value: "5".to_string()}),
+                        }),
+                        op: BinaryOperator::OpDiv,
+                        right: Box::new(Expr::Literal {value_type: ValueType::Int, value: "6".to_string()}),
+                    }),
                 }),
                 op: BinaryOperator::OpSub,
-                right: Box::new(Expr::BinOp {
-                    left: Box::new(Expr::BinOp {
-                        left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "4".to_string()}),
-                        op: BinaryOperator::OpAdd,
-                        right: Box::new(Expr::Literal {value_type: ValueType::Int, value: "5".to_string()}),
-                    }),
-                    op: BinaryOperator::OpDiv,
-                    right: Box::new(Expr::Literal {value_type: ValueType::Int, value: "6".to_string()}),
-                }),
-            }),
-            op: BinaryOperator::OpSub,
-            right: Box::new(Expr::Literal {value_type: ValueType::Float, value: "7.1".to_string()}),
-        })
-    );
+                right: Box::new(Expr::Literal {value_type: ValueType::Float, value: "7.1".to_string()}),
+            })
+        );
 
-    assert_eq!(
-        parser_wrapper(&identifier, "def"),
-        Ok("def".to_string())
-    );
+        assert_eq!(
+            parser_wrapper(&identifier, "def"),
+            Ok("def".to_string())
+        );
 
-    assert_eq!(
-        parser_wrapper(&term_parser, "def"),
-        Ok(Expr::Id(Identifier {name: "def".to_string(), qualifier: None}))
-    );
+        assert_eq!(
+            parser_wrapper(&term_parser, "def"),
+            Ok(Expr::Id(Identifier {name: "def".to_string(), qualifier: None}))
+        );
 
-    assert_eq!(
-        parse_expr("def"),
-        Ok(Expr::Id(Identifier {name: "def".to_string(), qualifier: None}))
-    );
+        assert_eq!(
+            parse_expr("def"),
+            Ok(Expr::Id(Identifier {name: "def".to_string(), qualifier: None}))
+        );
 
-    assert_eq!(
-        parse_expr("abc.def"),
-        Ok(Expr::Id(Identifier {name: "def".to_string(), qualifier: Some("abc".to_string())}))
-    );
+        assert_eq!(
+            parse_expr("abc.def"),
+            Ok(Expr::Id(Identifier {name: "def".to_string(), qualifier: Some("abc".to_string())}))
+        );
 
-    assert_eq!(
-        parse_expr("1 + def"),
-        Ok(Expr::BinOp {
-            left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}),
-            op: BinaryOperator::OpAdd,
-            right: Box::new(Expr::Id(Identifier {name: "def".to_string(), qualifier: None}))
-        })
-    );
+        assert_eq!(
+            parse_expr("1 + def"),
+            Ok(Expr::BinOp {
+                left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}),
+                op: BinaryOperator::OpAdd,
+                right: Box::new(Expr::Id(Identifier {name: "def".to_string(), qualifier: None}))
+            })
+        );
 
-    assert_eq!(
-        parse_expr("1 + abc.def"),
-        Ok(Expr::BinOp {
-            left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}),
-            op: BinaryOperator::OpAdd,
-            right: Box::new(Expr::Id(Identifier {name: "def".to_string(), qualifier: Some("abc".to_string())}))
-        })
-    );
+        assert_eq!(
+            parse_expr("1 + abc.def"),
+            Ok(Expr::BinOp {
+                left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}),
+                op: BinaryOperator::OpAdd,
+                right: Box::new(Expr::Id(Identifier {name: "def".to_string(), qualifier: Some("abc".to_string())}))
+            })
+        );
+    }
 }

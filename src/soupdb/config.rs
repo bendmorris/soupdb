@@ -17,9 +17,14 @@ impl Config {
     }
 }
 
-#[test]
-fn test_config() {
-    // make sure constructor works
-    let config = Config::new();
-    assert!(config.data_dir.to_str().unwrap().len() > 0);
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_config() {
+        // make sure constructor works
+        let config = Config::new();
+        assert!(config.data_dir.to_str().unwrap().len() > 0);
+    }
 }

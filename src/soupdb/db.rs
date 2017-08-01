@@ -44,9 +44,14 @@ impl Database {
     }
 }
 
-#[test]
-fn test_database() {
-    // make sure constructor works
-    let db = Database::new("test_db".to_string(), None);
-    assert_eq!(db.config.data_dir, Config::new().data_dir)
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_database() {
+        // make sure constructor works
+        let db = Database::new("test_db".to_string(), None);
+        assert_eq!(db.config.data_dir, Config::new().data_dir)
+    }
 }

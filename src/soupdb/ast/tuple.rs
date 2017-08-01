@@ -50,13 +50,18 @@ impl Index<usize> for TupleDef {
     }
 }
 
-#[test]
-fn test_tuple_size() {
-    use soupdb::ast::value_type::ValueType::{Bool, Uint, Int, Vector};
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    assert_eq!(25, TupleDef(vec![
-        TupleEntry {name: "col_1".to_string(), value: Bool},
-        TupleEntry {name: "col_2".to_string(), value: Uint},
-        TupleEntry {name: "col_3".to_string(), value: Vector(2, Box::new(Int))},
-    ]).size_of());
+    #[test]
+    fn test_tuple_size() {
+        use soupdb::ast::value_type::ValueType::{Bool, Uint, Int, Vector};
+
+        assert_eq!(25, TupleDef(vec![
+            TupleEntry {name: "col_1".to_string(), value: Bool},
+            TupleEntry {name: "col_2".to_string(), value: Uint},
+            TupleEntry {name: "col_3".to_string(), value: Vector(2, Box::new(Int))},
+        ]).size_of());
+    }
 }

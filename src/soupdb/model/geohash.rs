@@ -19,24 +19,28 @@ impl ModelType for GeoHash {
     }
 }
 
-#[test]
-fn test_geohash_ddl() {
+#[cfg(test)]
+mod tests {
+    use super::*;
     use soupdb::ast::tuple::{TupleEntry, TupleDef};
     use soupdb::ast::value_type::ValueType;
     use soupdb::model::Model;
 
-    let test_ddl = "create geohash test_geohash (col_1 int, col_2 nullable vector(3) float);".to_string();
+    #[test]
+    fn test_geohash_ddl() {
+        let test_ddl = "create geohash test_geohash (col_1 int, col_2 nullable vector(3) float);".to_string();
 
-    assert_eq!(
-        test_ddl,
-        (Model {name: "test_geohash".to_string(), schema: Box::new(GeoHash {schema: TupleDef(vec![
-            TupleEntry {name: "col_1".to_string(), value: ValueType::Int},
-            TupleEntry {name: "col_2".to_string(), value: ValueType::Nullable(Box::new(ValueType::Vector(3, Box::new(ValueType::Float))))},
-        ])})}).to_ddl()
-    );
+        assert_eq!(
+            test_ddl,
+            (Model {name: "test_geohash".to_string(), schema: Box::new(GeoHash {schema: TupleDef(vec![
+                TupleEntry {name: "col_1".to_string(), value: ValueType::Int},
+                TupleEntry {name: "col_2".to_string(), value: ValueType::Nullable(Box::new(ValueType::Vector(3, Box::new(ValueType::Float))))},
+            ])})}).to_ddl()
+        );
 
-    // parse the DDL into a create model command, check that the model can
-    // then generate the same DDL
-    let parsed_model = Model::from_ddl(&test_ddl).unwrap();
-    assert_eq!(test_ddl, parsed_model.to_ddl());
+        // parse the DDL into a create model command, check that the model can
+        // then generate the same DDL
+        let parsed_model = Model::from_ddl(&test_ddl).unwrap();
+        assert_eq!(test_ddl, parsed_model.to_ddl());
+    }
 }
