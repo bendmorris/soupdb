@@ -6,8 +6,8 @@ pub mod value_type;
 
 use std::result::Result;
 use std::str::FromStr;
-use soupdb::Error;
-use soupdb::ast::value_type::ValueType;
+use ::Error;
+use ::ast::value_type::ValueType;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Identifier {

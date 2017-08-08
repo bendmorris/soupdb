@@ -6,10 +6,10 @@ pub mod timeseries;
 
 use std::fmt::Debug;
 use std::io::Write;
-use soupdb::ast::command::Command;
-use soupdb::ast::parse::parse_command;
-use soupdb::ast::tuple::TupleDef;
-use soupdb::{Error, Result};
+use ::ast::command::Command;
+use ::ast::parse::parse_command;
+use ::ast::tuple::TupleDef;
+use ::{Error, Result};
 
 pub trait ModelType: Debug {
     fn rowid_schema(&self) -> Option<TupleDef> {

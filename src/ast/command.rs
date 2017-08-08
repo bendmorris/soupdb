@@ -1,13 +1,13 @@
-use soupdb::ast::{Expr, Identifier};
-use soupdb::model::ModelType;
+use ::ast::{Expr, Identifier};
+use ::model::ModelType;
 
-type OrderByClause = Option<Vec<Expr>>;
-type LimitClause = Option<u64>;
+pub type OrderByClause = Option<Vec<Expr>>;
+pub type LimitClause = Option<u64>;
 
 #[derive(Debug, PartialEq)]
 pub enum SelectColumns {
     All,
-    Named(Vec<(Expr, String)>),
+    Named(Vec<(Expr, Option<String>)>),
 }
 
 #[derive(Debug)]
@@ -24,7 +24,7 @@ pub enum Command {
     DropModel {name: String},
     Select {
         cols: SelectColumns,
-        from: Option<Vec<Identifier>>,
+        from: Option<Vec<(String, Option<String>)>>,
         where_expr: Option<Expr>,
         group_by: Option<Vec<Expr>>,
         having: Option<Expr>,

@@ -1,7 +1,30 @@
-use soupdb::ast::tuple::{TupleDef, TupleEntry};
-use soupdb::ast::value_type::ValueType;
-use soupdb::model::ModelType;
+use ::ast::tuple::{TupleDef, TupleEntry};
+use ::ast::value_type::ValueType;
+use ::model::ModelType;
 
+/// A TABLE is a collection of tuples ordered by an automatically-generated
+/// rowid field.
+///
+/// ```sql
+/// CREATE TABLE inventory (item_id int, name str, count int);
+/// ```
+///
+/// Tuples in a TABLE have a hidden key, `rowid autoid`, which is automatically
+/// incremented.
+///
+/// The TABLE model type supports SQL queries. These queries can interact with
+/// other model types by utilizing operations which transform those models into
+/// a value, tuple or collection of tuples and including them in the column
+/// specification, JOIN or WHERE clauses. For example:
+///
+/// ```sql
+/// SELECT col1, col2
+/// FROM my_table
+/// WHERE col > jsonpath(my_doc, `$.abc.def`);
+/// ```
+///
+/// SQL queries return a vector of tuples (the base storage of the TABLE model)
+/// as a result.
 #[derive(Debug)]
 pub struct Table {
     pub schema: TupleDef,
@@ -22,9 +45,9 @@ impl ModelType for Table {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use soupdb::ast::tuple::{TupleEntry, TupleDef};
-    use soupdb::ast::value_type::ValueType;
-    use soupdb::model::Model;
+    use ::ast::tuple::{TupleEntry, TupleDef};
+    use ::ast::value_type::ValueType;
+    use ::model::Model;
 
     #[test]
     fn test_table_ddl() {

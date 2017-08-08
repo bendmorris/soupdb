@@ -21,15 +21,18 @@ pub enum ValueType {
 }
 
 impl ValueType {
+    /// Size required for a ValueType, in bytes.
     pub fn size_of(&self) -> u64 {
         match self {
             &ValueType::Unknown => panic!("invalid schema with unknown field type"),
             &ValueType::Bool => 1,
+            // 64-bit numeric types
             &ValueType::Uint => 8,
             &ValueType::Int => 8,
             &ValueType::Float => 8,
             &ValueType::AutoId => 8,
-            &ValueType::Str(0) => 16,
+            // off-page storage is a page ID (u64) + offset (u16)
+            &ValueType::Str(0) => 10,
             &ValueType::Str(n) => if n > MAX_INLINE_STRING_LENGTH {MAX_INLINE_STRING_LENGTH} else {n},
             &ValueType::Nullable(ref v) => 1 + (*v).size_of(),
             &ValueType::Vector(n, ref v) => n * (*v).size_of(),
@@ -63,7 +66,7 @@ mod tests {
         assert_eq!(1, Bool.size_of());
         assert_eq!(8, Uint.size_of());
         assert_eq!(8, Int.size_of());
-        assert_eq!(16, Str(0).size_of());
+        assert_eq!(10, Str(0).size_of());
         assert_eq!(27, Str(27).size_of());
         assert_eq!(28, Nullable(Box::new(Str(27))).size_of());
         assert_eq!(112, Vector(4, Box::new(Nullable(Box::new(Str(27))))).size_of());

@@ -1,10 +1,11 @@
-pub mod soupdb;
+pub mod server;
 
 extern crate argparse;
 extern crate mio;
+extern crate soupdb;
 
 use argparse::{ArgumentParser, Store};
-use soupdb::server::SoupDbServer;
+use server::SoupDbServer;
 
 fn main() {
     // parse CLI args

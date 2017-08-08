@@ -1,6 +1,6 @@
-use soupdb::ast::tuple::{TupleDef, TupleEntry};
-use soupdb::ast::value_type::ValueType;
-use soupdb::model::ModelType;
+use ::ast::tuple::{TupleDef, TupleEntry};
+use ::ast::value_type::ValueType;
+use ::model::ModelType;
 
 #[derive(Debug)]
 pub struct GeoHash {
@@ -22,9 +22,9 @@ impl ModelType for GeoHash {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use soupdb::ast::tuple::{TupleEntry, TupleDef};
-    use soupdb::ast::value_type::ValueType;
-    use soupdb::model::Model;
+    use ::ast::tuple::{TupleEntry, TupleDef};
+    use ::ast::value_type::ValueType;
+    use ::model::Model;
 
     #[test]
     fn test_geohash_ddl() {

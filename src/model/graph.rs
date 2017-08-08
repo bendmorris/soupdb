@@ -1,6 +1,14 @@
-use soupdb::ast::tuple::TupleDef;
-use soupdb::model::ModelType;
+use ::ast::tuple::TupleDef;
+use ::model::ModelType;
 
+/// A GRAPH is a directed graph structure, with a separate schema for nodes and
+/// edges, both of which are tuples.
+///
+/// ```sql
+/// CREATE GRAPH
+/// WITH NODE (node_id int, node_label str)
+/// WITH EDGE (edge_length int);
+/// ```
 #[derive(Debug)]
 pub struct Graph {
     pub node_schema: TupleDef,
@@ -16,9 +24,9 @@ impl ModelType for Graph {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use soupdb::ast::tuple::{TupleEntry, TupleDef};
-    use soupdb::ast::value_type::ValueType;
-    use soupdb::model::Model;
+    use ::ast::tuple::{TupleEntry, TupleDef};
+    use ::ast::value_type::ValueType;
+    use ::model::Model;
 
     #[test]
     fn test_graph_ddl() {

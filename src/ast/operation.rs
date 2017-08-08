@@ -1,5 +1,5 @@
-use soupdb::ast::Identifier;
-use soupdb::model::Model;
+use ::ast::Identifier;
+use ::model::Model;
 
 pub struct InputDef {
     name: Identifier,

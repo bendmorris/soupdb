@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Formatter, Result};
 use byteorder::{ByteOrder, LittleEndian};
-use soupdb::ast::value_type::ValueType;
+use ::ast::value_type::ValueType;
 
 pub union Value {
     bool_value: bool,

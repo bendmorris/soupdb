@@ -1,5 +1,5 @@
 use std::ops::Index;
-use soupdb::ast::value_type::ValueType;
+use ::ast::value_type::ValueType;
 
 #[derive(Debug)]
 pub struct TupleEntry {
@@ -56,7 +56,7 @@ mod tests {
 
     #[test]
     fn test_tuple_size() {
-        use soupdb::ast::value_type::ValueType::{Bool, Uint, Int, Vector};
+        use ::ast::value_type::ValueType::{Bool, Uint, Int, Vector};
 
         assert_eq!(25, TupleDef(vec![
             TupleEntry {name: "col_1".to_string(), value: Bool},

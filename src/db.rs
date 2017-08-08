@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 use glob::glob;
-use soupdb::{Error, Result};
-use soupdb::ast::command::Command;
-use soupdb::config::Config;
-use soupdb::model::Model;
+use ::{Error, Result};
+use ::ast::command::Command;
+use ::config::Config;
+use ::model::Model;
 
 struct Database {
     pub name: String,

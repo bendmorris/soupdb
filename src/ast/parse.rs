@@ -1,15 +1,55 @@
 use nom::{IResult, digit};
-use soupdb::{Error, Result};
-use soupdb::ast::{Expr, BinaryOperator, UnaryOperator, Identifier};
-use soupdb::ast::command::Command;
-use soupdb::ast::binop::{ExprToken, shunting_yard};
-use soupdb::ast::tuple::{TupleDef, TupleEntry};
-use soupdb::ast::value_type::ValueType;
-use soupdb::model::document::Document;
-use soupdb::model::geohash::GeoHash;
-use soupdb::model::graph::Graph;
-use soupdb::model::table::Table;
-use soupdb::model::timeseries::TimeSeries;
+use ::{Error, Result};
+use ::ast::{Expr, BinaryOperator, UnaryOperator, Identifier};
+use ::ast::command::{Command, SelectColumns, OrderByClause, LimitClause};
+use ::ast::binop::{ExprToken, shunting_yard};
+use ::ast::tuple::{TupleDef, TupleEntry};
+use ::ast::value_type::ValueType;
+use ::model::document::Document;
+use ::model::geohash::GeoHash;
+use ::model::graph::Graph;
+use ::model::table::Table;
+use ::model::timeseries::TimeSeries;
+
+// TODO
+static RESERVED_WORDS: &'static [&'static str] = &[
+    "and",
+    "bool",
+    "create",
+    "delete",
+    "document",
+    "drop",
+    "false",
+    "float",
+    "from",
+    "geohash",
+    "graph",
+    "having",
+    "index",
+    "inner",
+    "insert",
+    "int",
+    "join",
+    "left",
+    "model",
+    "not",
+    "null",
+    "nullable",
+    "on",
+    "or",
+    "outer",
+    "right",
+    "select",
+    "set",
+    "str",
+    "table",
+    "timeseries",
+    "true",
+    "unsigned",
+    "update",
+    "vector",
+    "where",
+];
 
 // basic subparsers
 
@@ -324,8 +364,79 @@ named!(create_command_parser<&str, Command>, alt_complete!(
     create_timeseries
 ));
 
+named!(select_all_columns<&str, SelectColumns>, do_parse!(
+    char!('*') >>
+    (SelectColumns::All)
+));
+
+named!(aliased_expr<&str, (Expr, Option<String>)>, ws!(do_parse!(
+    expr: expr_parser >>
+    name: opt!(complete!(ws!(do_parse!(
+        tag_no_case!("as") >>
+        name: identifier >>
+        (name)
+    )))) >>
+    ((expr, name))
+)));
+
+named!(aliased_identifier<&str, (String, Option<String>)>, ws!(do_parse!(
+    id: identifier >>
+    name: opt!(complete!(ws!(do_parse!(
+        tag_no_case!("as") >>
+        name: identifier >>
+        (name)
+    )))) >>
+    ((id, name))
+)));
+
+named!(select_specific_columns<&str, SelectColumns>, ws!(do_parse!(
+    cols: ws!(separated_nonempty_list!(
+        char!(','),
+        aliased_expr
+    )) >>
+    (SelectColumns::Named(cols))
+)));
+
+named!(select_column_parser<&str, SelectColumns>, alt_complete!(
+    select_all_columns |
+    select_specific_columns
+));
+
+named!(from_spec_parser<&str, Vec<(String, Option<String>)>>, ws!(do_parse!(
+    names: ws!(separated_nonempty_list!(
+        char!(','),
+        aliased_identifier
+    )) >>
+    (names)
+)));
+
+named!(select_command_parser<&str, Command>, ws!(do_parse!(
+    tag_no_case!("select") >>
+    cols: select_column_parser >>
+    from: opt!(ws!(do_parse!(
+        tag_no_case!("from") >>
+        from: from_spec_parser >>
+        (from)
+    ))) >>
+    where_expr: opt!(ws!(do_parse!(
+        tag_no_case!("where") >>
+        where_expr: expr_parser >>
+        (where_expr)
+    ))) >>
+    group_by: opt!(ws!(do_parse!(
+        tag_no_case!("group") >>
+        tag_no_case!("by") >>
+        exprs: ws!(separated_nonempty_list!(char!(','), expr_parser)) >>
+        (exprs)
+    ))) >>
+    char!(';') >>
+    // TODO
+    (Command::Select {cols, from, where_expr, group_by, having: None, order_by: None, limit: None})
+)));
+
 named!(command_parser<&str, Command>, alt_complete!(
-    create_command_parser
+    create_command_parser |
+    select_command_parser
 ));
 
 /// Provides a nom parser wrapper which returns a soupdb::error::Result.
@@ -470,6 +581,55 @@ mod tests {
                 left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}),
                 op: BinaryOperator::OpAdd,
                 right: Box::new(Expr::Id(Identifier {name: "def".to_string(), qualifier: Some("abc".to_string())}))
+            })
+        );
+    }
+
+    #[test]
+    fn test_parse_select() {
+        assert_eq!(
+            parse_command("select * from abc;"),
+            Ok(Command::Select {
+                cols: SelectColumns::All,
+                from: Some(vec![("abc".to_string(), None)]),
+                where_expr: None,
+                group_by: None,
+                having: None,
+                order_by: None,
+                limit: None,
+            })
+        );
+
+        assert_eq!(
+            parse_command("select 1 as col1, 2 from abc as d;"),
+            Ok(Command::Select {
+                cols: SelectColumns::Named(vec![
+                    (Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}, Some("col1".to_string())),
+                    (Expr::Literal {value_type: ValueType::Int, value: "2".to_string()}, None),
+                ]),
+                from: Some(vec![("abc".to_string(), Some({"d".to_string()}))]),
+                where_expr: None,
+                group_by: None,
+                having: None,
+                order_by: None,
+                limit: None,
+            })
+        );
+
+        assert_eq!(
+            parse_command("select * from abc as d where 1 = 2;"),
+            Ok(Command::Select {
+                cols: SelectColumns::All,
+                from: Some(vec![("abc".to_string(), Some({"d".to_string()}))]),
+                where_expr: Some(Expr::BinOp {
+                    left: Box::new(Expr::Literal {value_type: ValueType::Int, value: "1".to_string()}),
+                    op: BinaryOperator::OpEq,
+                    right: Box::new(Expr::Literal {value_type: ValueType::Int, value: "2".to_string()}),
+                }),
+                group_by: None,
+                having: None,
+                order_by: None,
+                limit: None,
             })
         );
     }
